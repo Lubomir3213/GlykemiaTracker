@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GlykemiaTracker - Konfigurácia Cloudu</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #121212;
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            margin: 0;
+        }
+        .container {
+            max-width: 500px;
+            width: 100%;
+            background-color: #1e1e1e;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            text-align: center;
+        }
+        h1 { color: #81D4FA; margin-bottom: 10px; }
+        p { color: #bbbbbb; font-size: 0.9em; margin-bottom: 25px; }
+        .input-group { margin-bottom: 15px; text-align: left; }
+        label { display: block; margin-bottom: 5px; color: #81D4FA; font-weight: bold; font-size: 0.8em; }
+        input {
+            width: 100%;
+            padding: 12px;
+            box-sizing: border-box;
+            background-color: #2c2c2c;
+            border: 1px solid #444;
+            border-radius: 8px;
+            color: white;
+            font-size: 14px;
+        }
+        input:focus { border-color: #81D4FA; outline: none; }
+        button {
+            width: 100%;
+            padding: 15px;
+            margin-top: 20px;
+            background-color: #00B0FF;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover { background-color: #0081cb; }
+        #qrcode {
+            margin-top: 30px;
+            padding: 15px;
+            background-color: white;
+            border-radius: 10px;
+            display: none;
+            justify-content: center;
+        }
+        .footer { margin-top: 40px; color: #555; font-size: 0.7em; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>🩸 GlykemiaTracker</h1>
+        <p>Zadajte údaje z vašej Firebase konzoly a vygenerujte QR kód pre nastavenie aplikácie.</p>
+
+        <div class="input-group">
+            <label for="pid">Project ID</label>
+            <input type="text" id="pid" placeholder="napr. glykemia-tracker">
+        </div>
+
+        <div class="input-group">
+            <label for="key">API Key</label>
+            <input type="text" id="key" placeholder="AIzaSy...">
+        </div>
+
+        <div class="input-group">
+            <label for="aid">App ID</label>
+            <input type="text" id="aid" placeholder="1:1234567890:android:abc123">
+        </div>
+
+        <button onclick="generateQR()">VYGENEROVAŤ QR KÓD</button>
+
+        <div id="qrcode"></div>
+    </div>
+
+    <div class="footer">
+        Vyvinuté pre GlykemiaTracker v18.2 | 2024
+    </div>
+
+    <script>
+        // Funkcia na automatické rozpoznanie google-services.json ALEBO firebaseConfig
+        function checkSmartPaste(input) {
+            const val = input.value.trim();
+            if (val.includes('{') && val.includes(':')) {
+                let pid = "", key = "", aid = "";
+
+                // 1. Skúsime formát google-services.json (Android súbor)
+                const pidMatchJson = val.match(/"project_id"\s*:\s*"([^"]+)"/);
+                const keyMatchJson = val.match(/"current_key"\s*:\s*"([^"]+)"/);
+                const aidMatchJson = val.match(/"mobilesdk_app_id"\s*:\s*"([^"]+)"/);
+
+                // 2. Skúsime formát firebaseConfig (Webový objekt)
+                const pidMatchJs = val.match(/projectId\s*:\s*["']([^"']+)["']/);
+                const keyMatchJs = val.match(/apiKey\s*:\s*["']([^"']+)["']/);
+                const aidMatchJs = val.match(/appId\s*:\s*["']([^"']+)["']/);
+
+                pid = (pidMatchJson ? pidMatchJson[1] : (pidMatchJs ? pidMatchJs[1] : ""));
+                key = (keyMatchJson ? keyMatchJson[1] : (keyMatchJs ? keyMatchJs[1] : ""));
+                aid = (aidMatchJson ? aidMatchJson[1] : (aidMatchJs ? aidMatchJs[1] : ""));
+
+                if (pid || key || aid) {
+                    if (pid) document.getElementById('pid').value = pid;
+                    if (key) document.getElementById('key').value = key;
+                    if (aid) document.getElementById('aid').value = aid;
+                    alert("Dáta úspešne načítané zo súboru!");
+                }
+            }
+        }
+
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('input', (e) => checkSmartPaste(e.target));
+        });
+
+        function generateQR() {
+            const pid = document.getElementById('pid').value.trim();
+            const key = document.getElementById('key').value.trim();
+            const aid = document.getElementById('aid').value.trim();
+
+            if (!pid || !key || !aid) {
+                alert("Prosím vyplňte všetky tri polia. (Skontrolujte, či ste skopírovali správne kľúče z Firebase konzoly)");
+                return;
+            }
+
+            const config = {
+                pid: pid,
+                key: key,
+                aid: aid
+            };
+
+            const qrContainer = document.getElementById('qrcode');
+            qrContainer.innerHTML = '';
+            qrContainer.style.display = 'flex';
+
+            try {
+                new QRCode(qrContainer, {
+                    text: JSON.stringify(config),
+                    width: 250,
+                    height: 250,
+                    colorDark : "#000000",
+                    colorLight : "#ffffff",
+                    correctLevel : QRCode.CorrectLevel.M // Zmenené na M pre lepšiu čitateľnosť na mobiloch
+                });
+
+                // Jemné odrolovanie ku QR kódu
+                setTimeout(() => {
+                    qrContainer.scrollIntoView({ behavior: 'smooth' });
+                }, 100);
+            } catch (e) {
+                alert("Chyba pri generovaní QR kódu. Skontrolujte dĺžku zadaných údajov.");
+            }
+        }
+    </script>
+</body>
+</html>

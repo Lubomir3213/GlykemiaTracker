@@ -1,0 +1,19 @@
+# Android Studio / IntelliJ
+.idea/
+.gradle/
+build/
+*.iml
+local.properties
+
+# Android App
+app/build/
+app/release/
+*.apk
+*.json
+
+# Výnimka: index.html chceme zverejniť (je to náš generátor)
+!index.html
+
+# Lokálne dáta používateľa
+capture/
+debug/
