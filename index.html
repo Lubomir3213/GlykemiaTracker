@@ -76,8 +76,8 @@
         </div>
 
         <div class="input-group">
-            <label for="key">API Key</label>
-            <input type="text" id="key" placeholder="AIzaSy...">
+            <label for="key">Project number</label>
+            <input type="text" id="key" placeholder="Zadajte číslo projektu z konzoly">
         </div>
 
         <div class="input-group">
@@ -88,10 +88,28 @@
         <button onclick="generateQR()">VYGENEROVAŤ QR KÓD</button>
 
         <div id="qrcode"></div>
+        <button id="printBtn" style="display: none; background-color: #4CAF50; margin-top: 10px;" onclick="window.print()">VYTLAČIŤ KARTU</button>
     </div>
 
+    <style>
+        @media print {
+            body * { visibility: hidden; }
+            #qrcode, #qrcode * { visibility: visible; }
+            #qrcode {
+                position: absolute;
+                left: 0; top: 0;
+                width: 100%;
+                text-align: center;
+                background-color: white !important;
+                padding: 50px;
+            }
+            .container { box-shadow: none; border: none; }
+        }
+    </style>
+
     <div class="footer">
-        Vyvinuté pre GlykemiaTracker v18.2 | 2024
+        Vyvinuté v prostredí Android Studio Panda v úzkej spolupráci s umelou inteligenciou Gemini.<br>
+        GlykemiaTracker v18.2 | 2026
     </div>
 
     <script>
@@ -157,6 +175,9 @@
                     colorLight : "#ffffff",
                     correctLevel : QRCode.CorrectLevel.M // Zmenené na M pre lepšiu čitateľnosť na mobiloch
                 });
+
+                // Zobrazenie tlačidla na tlač
+                document.getElementById('printBtn').style.display = 'block';
 
                 // Jemné odrolovanie ku QR kódu
                 setTimeout(() => {

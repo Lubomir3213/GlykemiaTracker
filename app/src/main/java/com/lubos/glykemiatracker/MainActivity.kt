@@ -239,10 +239,10 @@ fun HorizontalFilterRow(odDatum: MutableLongState, doDatum: MutableLongState, kF
 fun HlavnaObrazovka(navController: NavController, vybranyMobil: MutableState<String>, isIzolovany: MutableState<Boolean>, simulovanyCas: MutableLongState) {
     LockScreenOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
     val context = LocalContext.current
-    // Databáza sa vytvorí LEN vtedy, ak sme inicializovali Firebase cez QR kód
-    val db = remember { 
+    // Databáza reaguje na zmenu režimu (izolácia vs. zdieľanie)
+    val db = remember(isIzolovany.value) { 
         try { 
-            if (com.google.firebase.FirebaseApp.getApps(context).isNotEmpty()) FirebaseFirestore.getInstance() else null 
+            if (!isIzolovany.value && com.google.firebase.FirebaseApp.getApps(context).isNotEmpty()) FirebaseFirestore.getInstance() else null
         } catch(e:Exception) { null } 
     }
     val focusManager = androidx.compose.ui.platform.LocalFocusManager.current
@@ -408,7 +408,7 @@ fun HlavnaObrazovka(navController: NavController, vybranyMobil: MutableState<Str
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(vertical = 2.dp, horizontal = 8.dp),
+                                .padding(top = 2.dp, bottom = 2.dp, start = 16.dp, end = 8.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
@@ -650,7 +650,7 @@ fun HlavnaObrazovka(navController: NavController, vybranyMobil: MutableState<Str
                         val tfModifier = Modifier.fillMaxWidth().onFocusChanged { if (it.isFocused) showScanner = false }
                         OutlinedTextField(value = tPid, onValueChange = { tPid = it; prefs.edit().putString("fb_pid", it).apply() }, label = { Text("Project ID", fontSize = 11.sp) }, modifier = tfModifier, textStyle = TextStyle(fontSize = 14.sp), singleLine = true)
                         Spacer(modifier = Modifier.height(8.dp))
-                        OutlinedTextField(value = tKey, onValueChange = { tKey = it; prefs.edit().putString("fb_api_key", it).apply() }, label = { Text("API Key", fontSize = 11.sp) }, modifier = tfModifier, textStyle = TextStyle(fontSize = 14.sp), singleLine = true)
+                        OutlinedTextField(value = tKey, onValueChange = { tKey = it; prefs.edit().putString("fb_api_key", it).apply() }, label = { Text("Project number", fontSize = 11.sp) }, modifier = tfModifier, textStyle = TextStyle(fontSize = 14.sp), singleLine = true)
                         Spacer(modifier = Modifier.height(8.dp))
                         OutlinedTextField(value = tAid, onValueChange = { tAid = it; prefs.edit().putString("fb_app_id", it).apply() }, label = { Text("App ID", fontSize = 11.sp) }, modifier = tfModifier, textStyle = TextStyle(fontSize = 14.sp), singleLine = true)
                         Spacer(modifier = Modifier.height(8.dp))

@@ -1,21 +1,17 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
-    alias(libs.plugins.google.gms.google.services)
+    // Plugin google-services bol odstránený, aby sa umožnila dynamická konfigurácia bez google-services.json
 }
 
 android {
     namespace = "com.lubos.glykemiatracker"
-    compileSdk {
-        version = release(36) {
-            minorApiLevel = 1
-        }
-    }
+    compileSdk = 35 // Opravené na stabilnú verziu Android 15
 
     defaultConfig {
         applicationId = "com.lubos.glykemiatracker"
         minSdk = 24
-        targetSdk = 36
+        targetSdk = 34 // Znížené na Android 14 pre lepšiu kompatibilitu so staršími Samsungmi
         versionCode = 1
         versionName = "1.0"
 
@@ -24,11 +20,13 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true // Zapne čistenie a zmenšenie aplikácie
+            isShrinkResources = true // Odstráni nepoužité obrázky a ikony
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.getByName("debug") // Dočasne použijeme debug kľúč pre jednoduchosť
         }
     }
     compileOptions {

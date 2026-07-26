@@ -1,6 +1,7 @@
 # GlykemiaTracker v18.2
 
-Moderná a intuitívna Android aplikácia na sledovanie hladiny glykémie, vyvinutá v Jetpack Compose.
+Moderná a intuitívna Android aplikácia na sledovanie hladiny glykémie, vyvinutá v Jetpack Compose <br>
+v prostredí **Android Studio Panda** v úzkej spolupráci s umelou inteligenciou **Gemini**.
 
 ## 🚀 Kľúčové funkcie
 - **Jednoduchý záznam:** Rýchle zadávanie hodnôt cez vlastný číselník.
@@ -21,7 +22,7 @@ Moderná a intuitívna Android aplikácia na sledovanie hladiny glykémie, vyvin
 ## 💻 Technológie
 - Kotlin & Jetpack Compose
 - Firebase Firestore (Cloud DB)
-- CameraX & ML Kit (QR Skener)
+- CameraX & ML Kit (QR Skener) 
 - Android PDF Document API
 
 ---
