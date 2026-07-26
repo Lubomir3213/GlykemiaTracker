@@ -81,14 +81,19 @@ class MainActivity : ComponentActivity() {
         
         val prefs = getSharedPreferences("glykemia_prefs", MODE_PRIVATE)
         val pid = prefs.getString("fb_pid", "") ?: ""
-        val apiKey = prefs.getString("fb_api_key", "") ?: ""
+        val pNum = prefs.getString("fb_api_key", "") ?: ""
         val appId = prefs.getString("fb_app_id", "") ?: ""
 
-        if (pid.isNotEmpty() && apiKey.isNotEmpty() && appId.isNotEmpty()) {
+        if (pid.isNotEmpty() && pNum.isNotEmpty() && appId.isNotEmpty()) {
             try {
                 val options = FirebaseOptions.Builder()
-                    .setProjectId(pid).setApiKey(apiKey).setApplicationId(appId).build()
-                if (FirebaseApp.getApps(this).isEmpty()) { FirebaseApp.initializeApp(this, options) }
+                    .setProjectId(pid)
+                    .setApiKey(pNum) // Tu vkladáme Project Number, ktoré ti funguje
+                    .setApplicationId(appId)
+                    .build()
+                if (FirebaseApp.getApps(this).isEmpty()) { 
+                    FirebaseApp.initializeApp(this, options) 
+                }
             } catch (e: Exception) { e.printStackTrace() }
         }
 
@@ -264,6 +269,20 @@ fun HlavnaObrazovka(navController: NavController, vybranyMobil: MutableState<Str
         prefs.edit().putInt(prstKey, newIdx).apply()
         if (!isIzolovany.value && db != null) {
             db.collection("nastavenia").document("aktualny_prst_shared").set(mapOf("index" to newIdx))
+        }
+    }
+
+    // Sledovanie aktuálneho prsta z cloudu (aby všetky mobily vedeli, ktorý nasleduje)
+    LaunchedEffect(isIzolovany.value, db) {
+        if (!isIzolovany.value && db != null) {
+            db.collection("nastavenia").document("aktualny_prst_shared")
+                .addSnapshotListener { snap, _ ->
+                    val cloudIdx = snap?.getLong("index")?.toInt()
+                    if (cloudIdx != null && cloudIdx != prstIndex) {
+                        prstIndex = cloudIdx
+                        prefs.edit().putInt(prstKey, cloudIdx).apply()
+                    }
+                }
         }
     }
 
@@ -474,7 +493,7 @@ fun HlavnaObrazovka(navController: NavController, vybranyMobil: MutableState<Str
                                 if (file.exists()) file.delete()
                                 (context as? Activity)?.finishAffinity()
                                 Runtime.getRuntime().exit(0)
-                            }, modifier = Modifier.fillMaxWidth(), colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF5722))) { Text("TOVÁRENSKÝ RESET (KĽÚČE + DÁTA)") }
+                            }, modifier = Modifier.fillMaxWidth(), colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF5252))) { Text("TOVÁRENSKÝ RESET (KĽÚČE + DÁTA)") }
 
                             Button(onClick = { testMenuZobrazene = false }, modifier = Modifier.fillMaxWidth(), colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50))) { Text("ZAVRIEŤ") }
                         }

@@ -61,7 +61,12 @@
             display: none;
             justify-content: center;
         }
-        .footer { margin-top: 40px; color: #555; font-size: 0.7em; }
+        .footer {
+            margin-top: 40px;
+            color: #555;
+            font-size: 0.7em;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -91,6 +96,11 @@
         <button id="printBtn" style="display: none; background-color: #4CAF50; margin-top: 10px;" onclick="window.print()">VYTLAČIŤ KARTU</button>
     </div>
 
+    <div class="footer">
+        Vyvinuté v prostredí Android Studio Panda v úzkej spolupráci s umelou inteligenciou Gemini.<br>
+        GlykemiaTracker v18.2 | 2026
+    </div>
+
     <style>
         @media print {
             body * { visibility: hidden; }
@@ -103,64 +113,21 @@
                 background-color: white !important;
                 padding: 50px;
             }
-            .container { box-shadow: none; border: none; }
         }
     </style>
 
-    <div class="footer">
-        Vyvinuté v prostredí Android Studio Panda v úzkej spolupráci s umelou inteligenciou Gemini.<br>
-        GlykemiaTracker v18.2 | 2026
-    </div>
-
     <script>
-        // Funkcia na automatické rozpoznanie google-services.json ALEBO firebaseConfig
-        function checkSmartPaste(input) {
-            const val = input.value.trim();
-            if (val.includes('{') && val.includes(':')) {
-                let pid = "", key = "", aid = "";
-
-                // 1. Skúsime formát google-services.json (Android súbor)
-                const pidMatchJson = val.match(/"project_id"\s*:\s*"([^"]+)"/);
-                const keyMatchJson = val.match(/"current_key"\s*:\s*"([^"]+)"/);
-                const aidMatchJson = val.match(/"mobilesdk_app_id"\s*:\s*"([^"]+)"/);
-
-                // 2. Skúsime formát firebaseConfig (Webový objekt)
-                const pidMatchJs = val.match(/projectId\s*:\s*["']([^"']+)["']/);
-                const keyMatchJs = val.match(/apiKey\s*:\s*["']([^"']+)["']/);
-                const aidMatchJs = val.match(/appId\s*:\s*["']([^"']+)["']/);
-
-                pid = (pidMatchJson ? pidMatchJson[1] : (pidMatchJs ? pidMatchJs[1] : ""));
-                key = (keyMatchJson ? keyMatchJson[1] : (keyMatchJs ? keyMatchJs[1] : ""));
-                aid = (aidMatchJson ? aidMatchJson[1] : (aidMatchJs ? aidMatchJs[1] : ""));
-
-                if (pid || key || aid) {
-                    if (pid) document.getElementById('pid').value = pid;
-                    if (key) document.getElementById('key').value = key;
-                    if (aid) document.getElementById('aid').value = aid;
-                    alert("Dáta úspešne načítané zo súboru!");
-                }
-            }
-        }
-
-        document.querySelectorAll('input').forEach(input => {
-            input.addEventListener('input', (e) => checkSmartPaste(e.target));
-        });
-
         function generateQR() {
             const pid = document.getElementById('pid').value.trim();
             const key = document.getElementById('key').value.trim();
             const aid = document.getElementById('aid').value.trim();
 
             if (!pid || !key || !aid) {
-                alert("Prosím vyplňte všetky tri polia. (Skontrolujte, či ste skopírovali správne kľúče z Firebase konzoly)");
+                alert("Prosím vyplňte všetky tri polia.");
                 return;
             }
 
-            const config = {
-                pid: pid,
-                key: key,
-                aid: aid
-            };
+            const config = { pid, key, aid };
 
             const qrContainer = document.getElementById('qrcode');
             qrContainer.innerHTML = '';
@@ -173,18 +140,12 @@
                     height: 250,
                     colorDark : "#000000",
                     colorLight : "#ffffff",
-                    correctLevel : QRCode.CorrectLevel.M // Zmenené na M pre lepšiu čitateľnosť na mobiloch
+                    correctLevel : QRCode.CorrectLevel.M
                 });
-
-                // Zobrazenie tlačidla na tlač
                 document.getElementById('printBtn').style.display = 'block';
-
-                // Jemné odrolovanie ku QR kódu
-                setTimeout(() => {
-                    qrContainer.scrollIntoView({ behavior: 'smooth' });
-                }, 100);
+                setTimeout(() => qrContainer.scrollIntoView({ behavior: 'smooth' }), 100);
             } catch (e) {
-                alert("Chyba pri generovaní QR kódu. Skontrolujte dĺžku zadaných údajov.");
+                alert("Chyba pri generovaní QR kódu.");
             }
         }
     </script>
